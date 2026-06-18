@@ -3,6 +3,11 @@ import Foundation
 import os
 
 class SelectPlayerMenu: PartialMenu {
+    private let liveBufferTimeMenuItem = NSMenuItem()
+    private let liveBufferTimeField = NSTextField(frame: NSRect(x: 0, y: 0, width: 64, height: 22))
+    private let vodBufferMenuItem = NSMenuItem()
+    private let vodBufferField = NSTextField(frame: NSRect(x: 0, y: 0, width: 64, height: 22))
+
     private let selectPlayerMenuItem = NSMenuItem(
         title: "Change media player…",
         action: #selector(selectPlayer),
@@ -10,15 +15,94 @@ class SelectPlayerMenu: PartialMenu {
     )
 
     override public var items: [NSMenuItem] {
-        [NSMenuItem.separator(), selectPlayerMenuItem]
+        [NSMenuItem.separator(), liveBufferTimeMenuItem, vodBufferMenuItem, selectPlayerMenuItem]
     }
 
     override init() {
         super.init()
+        setUpBufferItem(
+            menuItem: liveBufferTimeMenuItem,
+            field: liveBufferTimeField,
+            label: "live buffer (seconds)",
+            value: AppConfig.liveBufferTime,
+            action: #selector(updateLiveBufferTime(_:)),
+            editingDidEnd: #selector(liveBufferTimeEditingDidEnd(_:))
+        )
+        setUpBufferItem(
+            menuItem: vodBufferMenuItem,
+            field: vodBufferField,
+            label: "vod buffer (seconds)",
+            value: AppConfig.vodBuffer,
+            action: #selector(updateVodBuffer(_:)),
+            editingDidEnd: #selector(vodBufferEditingDidEnd(_:))
+        )
         selectPlayerMenuItem.target = self
         if AppConfig.playerBundleIdentifier == nil {
             setDefaultPlayer()
         }
+    }
+
+    private func setUpBufferItem(
+        menuItem: NSMenuItem,
+        field: NSTextField,
+        label labelText: String,
+        value: Int,
+        action: Selector,
+        editingDidEnd: Selector
+    ) {
+        let row = NSView(frame: NSRect(x: 0, y: 0, width: 260, height: 34))
+        let label = NSTextField(labelWithString: labelText)
+        let formatter = NumberFormatter()
+
+        formatter.allowsFloats = false
+        formatter.minimum = 0
+
+        label.frame = NSRect(x: 16, y: 7, width: 152, height: 20)
+        field.frame = NSRect(x: 176, y: 6, width: 64, height: 22)
+        field.alignment = .right
+        field.formatter = formatter
+        field.integerValue = value
+        field.target = self
+        field.action = action
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: editingDidEnd,
+            name: NSControl.textDidEndEditingNotification,
+            object: field
+        )
+
+        row.addSubview(label)
+        row.addSubview(field)
+        menuItem.view = row
+    }
+
+    @objc
+    private func updateLiveBufferTime(_ sender: NSTextField) {
+        AppConfig.liveBufferTime = sender.integerValue
+        sender.integerValue = AppConfig.liveBufferTime
+    }
+
+    @objc
+    private func liveBufferTimeEditingDidEnd(_ notification: Notification) {
+        guard let field = notification.object as? NSTextField else {
+            return
+        }
+        updateLiveBufferTime(field)
+    }
+
+    @objc
+    private func updateVodBuffer(_ sender: NSTextField) {
+        AppConfig.vodBuffer = sender.integerValue
+        sender.integerValue = AppConfig.vodBuffer
+    }
+
+    @objc
+    private func vodBufferEditingDidEnd(_ notification: Notification) {
+        guard let field = notification.object as? NSTextField else {
+            return
+        }
+        updateVodBuffer(field)
     }
 
     private func setDefaultPlayer() {

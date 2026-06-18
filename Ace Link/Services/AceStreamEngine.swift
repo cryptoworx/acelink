@@ -28,9 +28,9 @@ class AceStreamEngine: Service {
             "--access-token=\(token)",
             "--allow-user-config",
             "--bind-all",
-            "--live-buffer-time=15",
+            "--live-buffer-time=\(AppConfig.liveBufferTime)",
             "--live-cache-type=memory",
-            "-–vod-buffer=15",
+            "--vod-buffer=\(AppConfig.vodBuffer)",
             "--vod-cache-type=memory"
         )
         if process.standardOutContents.isEmpty {

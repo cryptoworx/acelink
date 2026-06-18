@@ -7,6 +7,12 @@ Ace Link is a menu bar app that allows playing Ace Streams on macOS.
 
 Play an Ace Stream or Magnet in any media player by pasting the URL in the Ace Link menu, or open an acestream or magnet link in Ace Link.
 
+## Fork enhancements
+
+This project is forked from [blaise-io/acelink](https://github.com/blaise-io/acelink).
+
+This fork adds `live buffer (seconds)` and `vod buffer (seconds)` fields with default values of 30 and 15 seconds respectively, to help with buffering on unstable internet connections.
+
 ## [Download for macOS](https://github.com/blaise-io/acelink/releases/download/2.1.0/Ace.Link.2.1.0.dmg)
 
  - Install using HomeBrew: `brew install --cask ace-link`

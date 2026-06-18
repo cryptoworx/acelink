@@ -30,6 +30,24 @@ Ace Link allows selecting your own media player. Ace Link does not transcode str
 
 Ace Link is an unsigned app because Apple does not allow p2p related applications. If your version of macOS does not allow opening unsigned applications, [follow these instructions to bypass this restriction](https://apple.stackexchange.com/a/240560).
 
+### Registering Ace Stream links
+
+To open `acestream://` links from a browser with a local build of Ace Link, register the app with macOS Launch Services:
+
+```sh
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "/path/to/Ace Link.app"
+```
+
+This fork uses the bundle identifier `io.cryptoworx.acelink` so macOS can distinguish it from the original Ace Link app.
+
+You can test the registration with:
+
+```sh
+open "acestream://test"
+```
+
+If another Ace Link app is installed, macOS may open that one instead. Move your build to `/Applications`, replace the old app, or rebuild this fork with a unique bundle identifier before registering it again.
+
 ### Ace Stream server only
 
 If you just want to run the AceStream engine, you can do so without Ace Link:

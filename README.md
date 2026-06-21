@@ -7,11 +7,28 @@ Ace Link is a menu bar app that allows playing Ace Streams on macOS.
 
 Play an Ace Stream or Magnet in any media player by pasting the URL in the Ace Link menu, or open an acestream or magnet link in Ace Link.
 
-## Fork enhancements
+## Fork enhancemens
 
 This project is forked from [blaise-io/acelink](https://github.com/blaise-io/acelink).
 
+### 1. Live/VOD buffer configuration
+
 This fork adds `live buffer (seconds)` and `vod buffer (seconds)` fields with default values of 30 and 15 seconds respectively, to help with buffering on unstable internet connections.
+
+### 2. Copy stream URL / VLC integration on Google TV
+
+Adds a button to copy the stream url which then can be used on another device (in the local network) to watch the stream.
+
+Install VLC on Google TV and open the fixed Ace Link stream URL:
+
+```text
+http://<mac network ip>:6888/current
+```
+
+Ace Link redirects this URL to the current raw stream whenever you start playback, so the URL can be saved once in VLC on the TV. Use *Copy TV stream URL* from the Ace Link menu to copy the current URL for your Mac. For HLS-capable players, use `http://<mac network ip>:6888/current.m3u8`; if your player does not follow redirects, use `http://<mac network ip>:6888/acelink.m3u8` instead.
+
+Ace Link can also launch VLC on Google TV over ADB. Enable Wireless debugging on the TV, install Android platform tools on the Mac, save the TV address in *Set Google TV ADB address...*, then use *Open VLC on Google TV* after starting a stream.
+
 
 ## [Download for macOS](https://github.com/blaise-io/acelink/releases/download/2.1.0/Ace.Link.2.1.0.dmg)
 
@@ -62,18 +79,6 @@ If you want to use a custom acestream.conf:
 ```
 docker run --platform=linux/amd64 --rm -p 6878:6878 -v "$(pwd)/acestream.conf:/opt/acestream/acestream.conf" blaiseio/acelink
 ```
-
-### VLC on Google TV
-
-Install VLC on Google TV and open the fixed Ace Link stream URL:
-
-```text
-http://<mac network ip>:6888/current
-```
-
-Ace Link redirects this URL to the current raw stream whenever you start playback, so the URL can be saved once in VLC on the TV. Use *Copy TV stream URL* from the Ace Link menu to copy the current URL for your Mac. For HLS-capable players, use `http://<mac network ip>:6888/current.m3u8`; if your player does not follow redirects, use `http://<mac network ip>:6888/acelink.m3u8` instead.
-
-Ace Link can also launch VLC on Google TV over ADB. Enable Wireless debugging on the TV, install Android platform tools on the Mac, save the TV address in *Set Google TV ADB address...*, then use *Open VLC on Google TV* after starting a stream.
 
 ### View Ace Link logs
 

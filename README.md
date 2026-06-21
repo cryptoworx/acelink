@@ -63,6 +63,18 @@ If you want to use a custom acestream.conf:
 docker run --platform=linux/amd64 --rm -p 6878:6878 -v "$(pwd)/acestream.conf:/opt/acestream/acestream.conf" blaiseio/acelink
 ```
 
+### VLC on Google TV
+
+Install VLC on Google TV and open the fixed Ace Link stream URL:
+
+```text
+http://<mac network ip>:6888/current
+```
+
+Ace Link redirects this URL to the current raw stream whenever you start playback, so the URL can be saved once in VLC on the TV. Use *Copy TV stream URL* from the Ace Link menu to copy the current URL for your Mac. For HLS-capable players, use `http://<mac network ip>:6888/current.m3u8`; if your player does not follow redirects, use `http://<mac network ip>:6888/acelink.m3u8` instead.
+
+Ace Link can also launch VLC on Google TV over ADB. Enable Wireless debugging on the TV, install Android platform tools on the Mac, save the TV address in *Set Google TV ADB address...*, then use *Open VLC on Google TV* after starting a stream.
+
 ### View Ace Link logs
 
 1. Open Console.app

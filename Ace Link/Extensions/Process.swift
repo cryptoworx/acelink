@@ -32,7 +32,8 @@ extension Process {
         process.arguments = arguments
         process.environment = [
             // Modify PATH to include dirs containing local binaries.
-            "PATH": ProcessInfo.processInfo.environment["PATH"]! + ":/usr/local/bin:/opt/local/bin",
+            "PATH": ProcessInfo.processInfo.environment["PATH"]! +
+                ":/opt/homebrew/bin:/usr/local/bin:/opt/local/bin",
             // Don't attempt to download/run arm64 packages because they're not supported.
             "DOCKER_DEFAULT_PLATFORM": "linux/amd64",
         ]

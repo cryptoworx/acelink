@@ -35,8 +35,30 @@ struct StreamFile {
             .appendingQuery(param, hash)
     }
 
+    var manifestURL: URL {
+        AppConstants.Docker.baseURL
+            .appendingPathComponent("/ace/manifest.m3u8")
+            .appendingQuery(param, hash)
+    }
+
+    var tvStreamURL: URL {
+        AppConfig.tvStreamBaseURL
+            .appendingPathComponent("/ace/getstream")
+            .appendingQuery(param, hash)
+    }
+
+    var tvManifestURL: URL {
+        AppConfig.tvStreamBaseURL
+            .appendingPathComponent("/ace/manifest.m3u8")
+            .appendingQuery(param, hash)
+    }
+
     var m3uData: String {
-        "#EXTM3U\n#EXTINF:0, Ace Link - \(title)\n\(streamURL.absoluteString)"
+        m3uData(for: streamURL)
+    }
+
+    var tvM3UData: String {
+        m3uData(for: tvManifestURL)
     }
 
     func addToHistory() {
@@ -64,6 +86,10 @@ struct StreamFile {
         } else {
             return playlistURL
         }
+    }
+
+    private func m3uData(for url: URL) -> String {
+        "#EXTM3U\r\n#EXTINF:-1, Ace Link - \(title)\r\n\(url.absoluteString)\r\n"
     }
 
     private func getStreamInfo(callback: @escaping (GetStreamInfoResponse) -> Void) {

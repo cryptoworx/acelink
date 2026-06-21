@@ -16,6 +16,24 @@ class MainMenu: NSMenu {
         keyEquivalent: ""
     )
 
+    let copyTVPlaylistURLItem = NSMenuItem(
+        title: "Copy TV stream URL",
+        action: #selector(copyTVPlaylistURL(_:)),
+        keyEquivalent: ""
+    )
+
+    let configureGoogleTVItem = NSMenuItem(
+        title: "Set Google TV ADB address...",
+        action: #selector(configureGoogleTV(_:)),
+        keyEquivalent: ""
+    )
+
+    let openGoogleTVItem = NSMenuItem(
+        title: "Open VLC on Google TV",
+        action: #selector(openGoogleTV(_:)),
+        keyEquivalent: ""
+    )
+
     let quitItem = NSMenuItem(
         title: "Quit Ace Link",
         action: #selector(NSApplication.shared.terminate(_:)),
@@ -31,6 +49,9 @@ class MainMenu: NSMenu {
 
         autoenablesItems = false
         openHelpDialogItem.target = self
+        copyTVPlaylistURLItem.target = self
+        configureGoogleTVItem.target = self
+        openGoogleTVItem.target = self
 
         for partialMenu in partialMenus {
             for item in partialMenu.items {
@@ -39,6 +60,9 @@ class MainMenu: NSMenu {
         }
 
         addItem(openHelpDialogItem)
+        addItem(copyTVPlaylistURLItem)
+        addItem(configureGoogleTVItem)
+        addItem(openGoogleTVItem)
         addItem(quitItem)
 
         update()
@@ -75,5 +99,122 @@ class MainMenu: NSMenu {
         alert.alertStyle = .informational
         alert.addButton(withTitle: "OK")
         alert.runModal()
+    }
+
+    @objc
+    func copyTVPlaylistURL(_: NSMenuItem?) {
+        let url = AppConfig.tvCurrentURL.absoluteString
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(url, forType: .string)
+
+        let alert = NSAlert()
+        alert.messageText = "Copied TV stream URL"
+        alert.informativeText = """
+        Open this URL in VLC on Google TV after starting a stream:
+
+        \(url)
+        """
+        alert.accessoryView = NSView(frame: NSRect(x: 0, y: 0, width: 500, height: 0))
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
+    }
+
+    @objc
+    func configureGoogleTV(_: NSMenuItem?) {
+        _ = promptForGoogleTVADBAddress()
+    }
+
+    @objc
+    func openGoogleTV(_: NSMenuItem?) {
+        if AppConfig.googleTVADBAddress == nil, !promptForGoogleTVADBAddress() {
+            return
+        }
+
+        guard let address = AppConfig.googleTVADBAddress else {
+            return
+        }
+
+        let url = AppConfig.tvCurrentURL.absoluteString
+        DispatchQueue.global(qos: .userInitiated).async {
+            let connect = Process.runCommand("adb", "connect", address)
+            if self.adbCommandFailed(connect) {
+                self.showGoogleTVError(
+                    "Cannot connect to Google TV at \(address).",
+                    process: connect
+                )
+                return
+            }
+
+            let launch = Process.runCommand(
+                "adb", "shell", "am", "start",
+                "-a", "android.intent.action.VIEW",
+                "-d", url,
+                "-t", "video/*",
+                "-p", "org.videolan.vlc"
+            )
+            if self.adbCommandFailed(launch) {
+                self.showGoogleTVError(
+                    "Cannot open VLC on Google TV. Make sure VLC is installed.",
+                    process: launch
+                )
+                return
+            }
+
+            DispatchQueue.main.async {
+                let alert = NSAlert()
+                alert.messageText = "Sent stream to Google TV"
+                alert.informativeText = url
+                alert.alertStyle = .informational
+                alert.addButton(withTitle: "OK")
+                alert.runModal()
+            }
+        }
+    }
+
+    private func promptForGoogleTVADBAddress() -> Bool {
+        let alert = NSAlert()
+        let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 360, height: 24))
+
+        field.stringValue = AppConfig.googleTVADBAddress ?? ""
+        alert.messageText = "Google TV ADB address"
+        alert.informativeText = """
+        Enter the TV address from Wireless debugging.
+        Example: 192.168.8.120:5555
+        """
+        alert.accessoryView = field
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "Save")
+        alert.addButton(withTitle: "Cancel")
+
+        guard alert.runModal() == .alertFirstButtonReturn else {
+            return false
+        }
+
+        AppConfig.googleTVADBAddress = field.stringValue
+        return AppConfig.googleTVADBAddress != nil
+    }
+
+    private func adbCommandFailed(_ process: Process) -> Bool {
+        if process.terminationStatus != 0 {
+            return true
+        }
+
+        let output = "\(process.standardOutContents)\n\(process.standardErrorContents)".lowercased()
+        return output.contains("failed") ||
+            output.contains("unable") ||
+            output.contains("cannot") ||
+            output.contains("error:") ||
+            output.contains("no devices")
+    }
+
+    private func showGoogleTVError(_ message: String, process: Process) {
+        let output = "\(process.standardOutContents)\n\(process.standardErrorContents)"
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        DispatchQueue.main.async {
+            NSAlert.error(
+                output.isEmpty ? message : "\(message)\n\nADB output:\n\(output)"
+            )
+        }
     }
 }

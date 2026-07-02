@@ -5,6 +5,12 @@ import os
 class SelectPlayerMenu: PartialMenu {
     private let liveBufferTimeMenuItem = NSMenuItem()
     private let liveBufferTimeField = NSTextField(frame: NSRect(x: 0, y: 0, width: 64, height: 22))
+    private let maxConnectionsMenuItem = NSMenuItem()
+    private let maxConnectionsField = NSTextField(frame: NSRect(x: 0, y: 0, width: 64, height: 22))
+    private let maxPeersMenuItem = NSMenuItem()
+    private let maxPeersField = NSTextField(frame: NSRect(x: 0, y: 0, width: 64, height: 22))
+    private let maxPeersLimitMenuItem = NSMenuItem()
+    private let maxPeersLimitField = NSTextField(frame: NSRect(x: 0, y: 0, width: 64, height: 22))
     private let vodBufferMenuItem = NSMenuItem()
     private let vodBufferField = NSTextField(frame: NSRect(x: 0, y: 0, width: 64, height: 22))
 
@@ -15,11 +21,43 @@ class SelectPlayerMenu: PartialMenu {
     )
 
     override public var items: [NSMenuItem] {
-        [NSMenuItem.separator(), liveBufferTimeMenuItem, vodBufferMenuItem, selectPlayerMenuItem]
+        [
+            NSMenuItem.separator(),
+            maxConnectionsMenuItem,
+            maxPeersMenuItem,
+            maxPeersLimitMenuItem,
+            liveBufferTimeMenuItem,
+            vodBufferMenuItem,
+            selectPlayerMenuItem
+        ]
     }
 
     override init() {
         super.init()
+        setUpBufferItem(
+            menuItem: maxConnectionsMenuItem,
+            field: maxConnectionsField,
+            label: "max-connections",
+            value: AppConfig.maxConnections,
+            action: #selector(updateMaxConnections(_:)),
+            editingDidEnd: #selector(maxConnectionsEditingDidEnd(_:))
+        )
+        setUpBufferItem(
+            menuItem: maxPeersMenuItem,
+            field: maxPeersField,
+            label: "max-peers",
+            value: AppConfig.maxPeers,
+            action: #selector(updateMaxPeers(_:)),
+            editingDidEnd: #selector(maxPeersEditingDidEnd(_:))
+        )
+        setUpBufferItem(
+            menuItem: maxPeersLimitMenuItem,
+            field: maxPeersLimitField,
+            label: "max-peers-limit",
+            value: AppConfig.maxPeersLimit,
+            action: #selector(updateMaxPeersLimit(_:)),
+            editingDidEnd: #selector(maxPeersLimitEditingDidEnd(_:))
+        )
         setUpBufferItem(
             menuItem: liveBufferTimeMenuItem,
             field: liveBufferTimeField,
@@ -75,6 +113,48 @@ class SelectPlayerMenu: PartialMenu {
         row.addSubview(label)
         row.addSubview(field)
         menuItem.view = row
+    }
+
+    @objc
+    private func updateMaxConnections(_ sender: NSTextField) {
+        AppConfig.maxConnections = sender.integerValue
+        sender.integerValue = AppConfig.maxConnections
+    }
+
+    @objc
+    private func maxConnectionsEditingDidEnd(_ notification: Notification) {
+        guard let field = notification.object as? NSTextField else {
+            return
+        }
+        updateMaxConnections(field)
+    }
+
+    @objc
+    private func updateMaxPeers(_ sender: NSTextField) {
+        AppConfig.maxPeers = sender.integerValue
+        sender.integerValue = AppConfig.maxPeers
+    }
+
+    @objc
+    private func maxPeersEditingDidEnd(_ notification: Notification) {
+        guard let field = notification.object as? NSTextField else {
+            return
+        }
+        updateMaxPeers(field)
+    }
+
+    @objc
+    private func updateMaxPeersLimit(_ sender: NSTextField) {
+        AppConfig.maxPeersLimit = sender.integerValue
+        sender.integerValue = AppConfig.maxPeersLimit
+    }
+
+    @objc
+    private func maxPeersLimitEditingDidEnd(_ notification: Notification) {
+        guard let field = notification.object as? NSTextField else {
+            return
+        }
+        updateMaxPeersLimit(field)
     }
 
     @objc

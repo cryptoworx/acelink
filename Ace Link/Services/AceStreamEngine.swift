@@ -30,6 +30,9 @@ class AceStreamEngine: Service {
             "--bind-all",
             "--live-buffer-time=\(AppConfig.liveBufferTime)",
             "--live-cache-type=memory",
+            "--max-connections=\(AppConfig.maxConnections)",
+            "--max-peers=\(AppConfig.maxPeers)",
+            "--max-peers-limit=\(AppConfig.maxPeersLimit)",
             "--vod-buffer=\(AppConfig.vodBuffer)",
             "--vod-cache-type=memory"
         )

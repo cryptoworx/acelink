@@ -7,9 +7,15 @@ public enum AppConfig: String {
     case bundleIdentifier
     case googleTVADBAddressKey = "google-tv-adb-address"
     case liveBufferTimeKey = "live-buffer-time"
+    case maxConnectionsKey = "max-connections"
+    case maxPeersKey = "max-peers"
+    case maxPeersLimitKey = "max-peers-limit"
     case vodBufferKey = "vod-buffer"
 
     static let defaultLiveBufferTime = 30
+    static let defaultMaxConnections = 500
+    static let defaultMaxPeers = 50
+    static let defaultMaxPeersLimit = 100
     static let defaultVodBuffer = 15
 
     static var streamsDir: URL {
@@ -78,6 +84,42 @@ public enum AppConfig: String {
         }
     }
 
+    static var maxConnections: Int {
+        get {
+            guard UserDefaults.standard.object(forKey: maxConnectionsKey.rawValue) != nil else {
+                return defaultMaxConnections
+            }
+            return max(0, UserDefaults.standard.integer(forKey: maxConnectionsKey.rawValue))
+        }
+        set(value) {
+            UserDefaults.standard.set(max(0, value), forKey: maxConnectionsKey.rawValue)
+        }
+    }
+
+    static var maxPeers: Int {
+        get {
+            guard UserDefaults.standard.object(forKey: maxPeersKey.rawValue) != nil else {
+                return defaultMaxPeers
+            }
+            return max(0, UserDefaults.standard.integer(forKey: maxPeersKey.rawValue))
+        }
+        set(value) {
+            UserDefaults.standard.set(max(0, value), forKey: maxPeersKey.rawValue)
+        }
+    }
+
+    static var maxPeersLimit: Int {
+        get {
+            guard UserDefaults.standard.object(forKey: maxPeersLimitKey.rawValue) != nil else {
+                return defaultMaxPeersLimit
+            }
+            return max(0, UserDefaults.standard.integer(forKey: maxPeersLimitKey.rawValue))
+        }
+        set(value) {
+            UserDefaults.standard.set(max(0, value), forKey: maxPeersLimitKey.rawValue)
+        }
+    }
+
     static var playerBundle: Bundle? {
         guard let playerBundleIdentifier = playerBundleIdentifier else {
             os_log("No player selected")
@@ -100,6 +142,10 @@ public enum AppConfig: String {
 
     static var tvCurrentURL: URL {
         URL(string: "http://\(localNetworkHost):\(AppConstants.Docker.proxyPort)/current")!
+    }
+
+    static var tvCurrentManifestURL: URL {
+        URL(string: "http://\(localNetworkHost):\(AppConstants.Docker.proxyPort)/current.m3u8")!
     }
 
     static var tvStreamBaseURL: URL {

@@ -135,7 +135,7 @@ class MainMenu: NSMenu {
             return
         }
 
-        let url = AppConfig.tvCurrentURL.absoluteString
+        let url = AppConfig.tvCurrentManifestURL.absoluteString
         DispatchQueue.global(qos: .userInitiated).async {
             let connect = Process.runCommand("adb", "connect", address)
             if self.adbCommandFailed(connect) {
@@ -150,7 +150,7 @@ class MainMenu: NSMenu {
                 "adb", "shell", "am", "start",
                 "-a", "android.intent.action.VIEW",
                 "-d", url,
-                "-t", "video/*",
+                "-t", "application/x-mpegURL",
                 "-p", "org.videolan.vlc"
             )
             if self.adbCommandFailed(launch) {

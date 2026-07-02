@@ -95,7 +95,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
 
             os_log("Waiting for peers…")
-            stream.waitForPeers { result in
+            stream.waitForPeers { stream, result in
                 if let message = result?.errorDescription {
                     self.loading.stop()
                     NSAlert.error(message)
